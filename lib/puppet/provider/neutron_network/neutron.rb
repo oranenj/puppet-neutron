@@ -81,7 +81,7 @@ Puppet::Type.type(:neutron_network).provide(
     end
 
     if @resource[:router_external]
-      network_opts << "--router:external=#{@resource[:router_external]}"
+      network_opts << '--router:external'
     end
 
     results = auth_neutron('net-create', '--format=shell',
