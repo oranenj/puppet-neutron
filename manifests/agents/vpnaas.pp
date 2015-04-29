@@ -47,7 +47,7 @@ class neutron::agents::vpnaas (
   $package_ensure              = present,
   $enabled                     = true,
   $manage_service              = true,
-  $vpn_device_driver           = 'neutron.services.vpn.device_drivers.ipsec.OpenSwanDriver',
+  $vpn_device_driver           = undef,
   $interface_driver            = 'neutron.agent.linux.interface.OVSInterfaceDriver',
   $external_network_bridge     = undef,
   $ipsec_status_check_interval = '60'
@@ -55,15 +55,28 @@ class neutron::agents::vpnaas (
 
   include ::neutron::params
 
+  if ($vpn_device_driver) {
+    $_vpn_driver = $vpn_device_driver
+  } else {
+    $_vpn_driver = $::neutron::params::vpnaas_driver
+  }
+
   Neutron_config<||>              ~> Service['neutron-vpnaas-service']
   Neutron_vpnaas_agent_config<||> ~> Service['neutron-vpnaas-service']
 
-  case $vpn_device_driver {
+  case $_vpn_driver {
     /\.OpenSwan/: {
       Package['openswan'] -> Package<| title == 'neutron-vpnaas-agent' |>
       package { 'openswan':
         ensure => present,
         name   => $::neutron::params::openswan_package,
+      }
+    }
+    /.StrongSwan/: {
+      Package['strongswan'] -> Package<| title == 'neutron-vpnaas-agent' |>
+      package { 'openswan':
+        ensure => present,
+        name   => $::neutron::params::strongswan_package,
       }
     }
     default: {

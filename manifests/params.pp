@@ -55,11 +55,13 @@ class neutron::params {
 
     $vpnaas_agent_package = 'openstack-neutron-vpn-agent'
     $vpnaas_agent_service = 'neutron-vpn-agent'
+    $vpnaas_driver        = 'neutron.services.vpn.device_drivers.ipsec.OpenSwanDriver'
     if $::operatingsystemrelease =~ /^7.*/ or $::operatingsystem == 'Fedora' {
       $openswan_package     = 'libreswan'
     } else {
       $openswan_package     = 'openswan'
     }
+    $strongswan_package     = 'strongswan'
 
     $l3_agent_package   = false
     $l3_agent_service   = 'neutron-l3-agent'
@@ -131,6 +133,13 @@ class neutron::params {
     $vpnaas_agent_service = 'neutron-vpn-agent'
 
     $openswan_package     = 'openswan'
+    $strongswan_package   = 'strongswan'
+
+    if $::operatingsystem == 'Ubuntu' and $::operatingsystemrelease =~ /^15.*/ {
+      $vpnaas_driver = 'neutron.services.vpn.device_drivers.ipsec.StrongSwanDriver'
+    } else {
+      $vpnaas_driver = 'neutron.services.vpn.device_drivers.ipsec.OpenSwanDriver'
+    }
 
     $metadata_agent_package = 'neutron-metadata-agent'
     $metadata_agent_service = 'neutron-metadata-agent'
